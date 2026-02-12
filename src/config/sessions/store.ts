@@ -1,4 +1,3 @@
-import JSON5 from "json5";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -144,7 +143,9 @@ export function loadSessionStore(
   let mtimeMs = getFileMtimeMs(storePath);
   try {
     const raw = fs.readFileSync(storePath, "utf-8");
-    const parsed = JSON5.parse(raw);
+    // JSON.parse is ~35x faster than JSON5.parse. This is safe because
+    // sessions.json is always machine-written via JSON.stringify.
+    const parsed = JSON.parse(raw);
     if (isSessionStoreRecord(parsed)) {
       store = parsed;
     }
